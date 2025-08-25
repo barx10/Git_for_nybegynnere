@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Git for nybegynnere</title>
+  <meta name="description" content="Kort og konkret innføring i Git – bruk av GitHub direkte i nettleseren." />
+  <style>
+    :root{
+      --bg:#0b0c10; --panel:#12151b; --ink:#e8edf2; --muted:#a8b3c2; --acc:#59b0ff;
+      --radius:14px; --shadow:0 6px 20px rgba(0,0,0,.25);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b0c10 0%,#0f1117 100%);color:var(--ink);font:16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif}
+    a{color:var(--acc);text-decoration:none;cursor:pointer}
+    a:hover{text-decoration:underline}
+    header{position:sticky;top:0;background:rgba(11,12,16,.9);border-bottom:1px solid #1f2430;z-index:50}
+    .wrap{max-width:1100px;margin:0 auto;padding:20px}
+    .brand{font-weight:700;font-size:20px}
+    nav.toc{position:sticky;top:64px;display:flex;flex-wrap:wrap;gap:10px;padding:10px;background:#0f1320;border:1px solid #1f2430;border-radius:var(--radius);margin-bottom:20px;box-shadow:var(--shadow)}
+    nav.toc a{color:var(--ink);padding:6px 10px;border-radius:8px;background:#151b27;font-size:14px;text-decoration:none}
+    nav.toc a:hover{background:#1e2535}
+    .hero-block{padding:28px;margin:18px 0;background:var(--panel);border:1px solid #1f2430;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero-block h1{margin:0 0 6px 0;font-size:30px}
+    .card{background:var(--panel);border:1px solid #1f2430;border-radius:var(--radius);padding:18px;margin-bottom:18px;box-shadow:var(--shadow);scroll-margin-top:100px}
+    pre{background:#0f1320;border:1px solid #1f2430;border-radius:12px;padding:12px;overflow:auto;font-size:14px;color:#dce6f5;position:relative}
+    code{font-family:ui-monospace, monospace}
+    .copy{position:absolute;top:6px;right:6px;background:#121829;border:1px solid #2a3346;color:#dfe7f3;border-radius:8px;padding:4px 8px;font-size:12px;cursor:pointer}
+    .hint{border-left:3px solid #2a9d8f;background:#0f1516;padding:8px 10px;border-radius:8px;color:#cfeae3;margin-top:10px}
+    dl.glossary dt{font-weight:700;margin-top:10px}
+    dl.glossary dd{margin:0 0 10px 0;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap hero">
+      <div class="brand">Git for nybegynnere</div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="hero-block">
+      <h1>Kom i gang med Git og GitHub</h1>
+      <p>Git er et versjonskontrollsystem – en måte å lagre og spore endringer i filer. GitHub er en skyløsning der du kan bruke Git rett i nettleseren, dele prosjekter og samarbeide med andre.</p>
+    </div>
+
+    <nav class="toc" aria-label="Innhold">
+      <a href="#github-nett">1. Lag repo</a>
+      <a href="#endre-filer">2. Endre og commit</a>
+      <a href="#branches">3. Branches</a>
+      <a href="#feil">4. Vanlige feil</a>
+      <a href="#workflow">5. Workflow</a>
+      <a href="#videre">6. Videre steg</a>
+      <a href="#cheatsheet">7. Cheatsheet</a>
+      <a href="#begreper">8. Begreper</a>
+      <a href="#kodesprak">9. Ulike kodespråk</a>
+    </nav>
+
+    <main>
+      <section id="github-nett" class="card">
+        <h2>1. Lag repo</h2>
+        <ol>
+          <li>Gå til <a href="https://github.com/" target="_blank">github.com</a> og logg inn.</li>
+          <li>Klikk <strong>New repository</strong>.</li>
+          <li>Gi repoet et navn, velg Public eller Private.</li>
+          <li>Huk av <strong>Add a README</strong>. Valgfritt: legg til <strong>.gitignore</strong> og lisens.</li>
+          <li>Klikk <strong>Create repository</strong>.</li>
+        </ol>
+      </section>
+
+      <section id="endre-filer" class="card">
+        <h2>2. Endre og commit</h2>
+        <p>En commit-melding er en kort tekst som forklarer hva du har endret. Gode meldinger gjør historikken forståelig.</p>
+        <ul>
+          <li><em>Dårlig:</em> "update"</li>
+          <li><em>Bra:</em> "legg til forsidebilde"</li>
+        </ul>
+        <ol>
+          <li>Åpne repoet ditt.</li>
+          <li>Klikk <strong>Add file → Create new file</strong>.</li>
+          <li>Kall fila <code>index.html</code> og lim inn enkel HTML.</li>
+          <li>Skriv en commit‑melding nederst og trykk <strong>Commit changes</strong>.</li>
+        </ol>
+      </section>
+
+      <section id="branches" class="card">
+        <h2>3. Branches</h2>
+        <ol>
+          <li>Klikk på branch‑menyen.</li>
+          <li>Skriv inn nytt branchnavn, f.eks. <code>test-branch</code>.</li>
+          <li>Opprett branchen, gjør endringer og commit som vanlig.</li>
+          <li>Bytt tilbake til <code>main</code>.</li>
+        </ol>
+      </section>
+
+      <section id="feil" class="card">
+        <h2>4. Vanlige feil</h2>
+        <ul>
+          <li>Endret feil branch → sjekk øverst hvilken branch du er på.</li>
+          <li>Utydelig commit‑melding → skriv <em>hva</em> du endret.</li>
+          <li>Filer vises ikke → sjekk at de er committet på <code>main</code>.</li>
+          <li>Glemt å lagre endring før commit → sjekk at endringer er lagret i nettleser‑editoren.</li>
+          <li>Skrev over en fil ved en feil → bruk commit‑historikk på GitHub for å hente tilbake en tidligere versjon.</li>
+          <li>Konflikter når du slår sammen branches → GitHub markerer forskjellene. Løs manuelt og commit på nytt.</li>
+        </ul>
+      </section>
+
+      <section id="workflow" class="card">
+        <h2>5. Workflow</h2>
+        <ol>
+          <li>Lag repo på GitHub.</li>
+          <li>Opprett eller last opp filer.</li>
+          <li>Commit med forklaring.</li>
+          <li>Lag branches for nye ideer og merge når du er fornøyd.</li>
+        </ol>
+      </section>
+
+      <section id="videre" class="card">
+        <h2>6. Videre steg</h2>
+        <ul>
+          <li>Slå på GitHub Pages for å publisere en enkel nettside rett fra repoet ditt.</li>
+          <li>Utforsk Issues og Projects for å holde orden på oppgaver.</li>
+          <li>Se på Pull Requests som metode for samarbeid og code review.</li>
+          <li>Etter hvert kan du prøve GitHub Desktop eller VS Code for mer avansert jobbing.</li>
+          <li>Se på Wiki-fanen i repoet for å lage enkel dokumentasjon.</li>
+          <li>Sjekk Insights-fanen for å se statistikk og aktivitet i prosjektet.</li>
+        </ul>
+      </section>
+
+      <section id="cheatsheet" class="card">
+        <h2>7. Cheatsheet (GitHub nett)</h2>
+        <ul>
+          <li><strong>Lag ny fil:</strong> Add file → Create new file</li>
+          <li><strong>Last opp filer:</strong> Add file → Upload files</li>
+          <li><strong>Endre fil:</strong> Klikk fila → blyantikon → Commit changes</li>
+          <li><strong>Ny branch:</strong> Branch‑menyen → skriv navn → Create branch</li>
+          <li><strong>Se historikk:</strong> Klikk <em>Commits</em> i toppen av repoet.</li>
+          <li><strong>Tilbakestill:</strong> Åpne en gammel commit, trykk «Browse files» for å hente gamle versjoner.</li>
+          <li><strong>Slett fil:</strong> Åpne fila → søppelbøtteikon → Commit changes.</li>
+          <li><strong>Last ned repo:</strong> Grønn <em>Code</em>-knapp → Download ZIP.</li>
+        </ul>
+      </section>
+
+      <section id="begreper" class="card">
+        <h2>8. Begreper forklart</h2>
+        <dl class="glossary">
+          <dt>Index-fil (index.html)</dt>
+          <dd>Standard startfil for et nettsted. Når du åpner repoet på GitHub Pages, vises denne automatisk.</dd>
+          <dt>README.md</dt>
+          <dd>En enkel tekstfil i Markdown som beskriver prosjektet. Vises på forsiden av repoet.</dd>
+          <dt>.gitignore</dt>
+          <dd>Liste over filer som skal ignoreres av Git.</dd>
+          <dt>Commit</dt>
+          <dd>Et lagringspunkt i prosjektet med en beskrivende melding.</dd>
+          <dt>Branch</dt>
+          <dd>En egen «gren» av repoet der du kan teste nye ting uten å ødelegge <code>main</code>.</dd>
+          <dt>Repository (repo)</dt>
+          <dd>Selve prosjektmappa, med alle filer og hele historikken.</dd>
+          <dt>Main branch</dt>
+          <dd>Hovedlinja i prosjektet ditt. Ofte heter den <code>main</code> og regnes som den stabile versjonen.</dd>
+          <dt>Merge</dt>
+          <dd>Å slå sammen endringer fra én branch inn i en annen.</dd>
+          <dt>Pull Request (PR)</dt>
+          <dd>Et forslag om å slå sammen endringer, brukes mye i samarbeid.</dd>
+          <dt>Fork</dt>
+          <dd>En kopi av et repo under din egen konto, så du kan eksperimentere uten å endre originalen.</dd>
+          <dt>Clone</dt>
+          <dd>Å laste ned en kopi av repoet til din egen maskin (brukes hvis du vil jobbe lokalt).</dd>
+          <dt>Issues</dt>
+          <dd>Et GitHub-verktøy for å rapportere feil, oppgaver eller idéer knyttet til repoet.</dd>
+          <dt>License</dt>
+          <dd>Forteller hvilke rettigheter andre har til å bruke, endre eller dele prosjektet ditt.</dd>
+        </dl>
+      </section>
+
+      <section id="kodesprak" class="card">
+        <h2>9. Ulike typer kodespråk</h2>
+        <dl class="glossary">
+          <dt>HTML</dt>
+          <dd>Språket for å strukturere innhold på nettsider.</dd>
+          <dt>CSS</dt>
+          <dd>Brukes sammen med HTML for å style innholdet.</dd>
+          <dt>JavaScript (JS)</dt>
+          <dd>Gir nettsider interaktivitet, f.eks. knapper og dynamikk.</dd>
+          <dt>Python</dt>
+          <dd>Et lettlest og mye brukt språk til alt fra skript til maskinlæring.</dd>
+          <dt>Markdown</dt>
+          <dd>Et enkelt språk for å formatere tekst. Brukes ofte i README‑filer.</dd>
+        </dl>
+      </section>
+    </main>
+  </div>
+
+  <script>
+  document.querySelectorAll('nav.toc a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const id = a.getAttribute('href');
+      if (id && id.length > 1) {
+        e.preventDefault();
+        document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+  </script>
+</body>
+</html>
