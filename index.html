@@ -17,7 +17,7 @@
     header{position:sticky;top:0;background:rgba(11,12,16,.9);border-bottom:1px solid #1f2430;z-index:50}
     .wrap{max-width:1100px;margin:0 auto;padding:20px}
     .brand{font-weight:700;font-size:20px}
-    nav.toc{position:sticky;top:64px;display:flex;flex-wrap:wrap;gap:10px;padding:10px;background:#0f1320;border:1px solid #1f2430;border-radius:var(--radius);margin-bottom:20px;box-shadow:var(--shadow)}
+    nav.toc{position:sticky;top:64px;display:flex;flex-wrap:wrap;gap:10px;padding:10px;background:#0f1320;border:1px solid #1f2430;border-radius:var(--radius);margin-bottom:20px;box-shadow:var(--shadow);}
     nav.toc a{color:var(--ink);padding:6px 10px;border-radius:8px;background:#151b27;font-size:14px;text-decoration:none}
     nav.toc a:hover{background:#1e2535}
     .hero-block{padding:28px;margin:18px 0;background:var(--panel);border:1px solid #1f2430;border-radius:var(--radius);box-shadow:var(--shadow)}
@@ -29,6 +29,48 @@
     .hint{border-left:3px solid #2a9d8f;background:#0f1516;padding:8px 10px;border-radius:8px;color:#cfeae3;margin-top:10px}
     dl.glossary dt{font-weight:700;margin-top:10px}
     dl.glossary dd{margin:0 0 10px 0;color:var(--muted)}
+    /* Footer styles */
+    footer.footer {
+      margin-top: 48px;
+      padding: 24px 0 20px 0;
+      background: #0b0c10;
+      border-top: 1px solid #1f2430;
+      text-align: center;
+      color: var(--muted);
+    }
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .footer-logo-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .footer-logo-img {
+      height: 36px;
+      width: auto;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .footer-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      margin-left: 6px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    @media (max-width: 600px) {
+      .footer-logo-img { height: 28px; }
+      .footer-text { font-size: 14px; }
+    }
   </style>
 </head>
 <body>
@@ -57,6 +99,7 @@
     </nav>
 
     <main>
+      <!-- ... eksisterende innhold ... -->
       <section id="github-nett" class="card">
         <h2>1. Lag repo</h2>
         <ol>
@@ -67,7 +110,7 @@
           <li>Klikk <strong>Create repository</strong>.</li>
         </ol>
       </section>
-
+      <!-- ... resten av innholdet uendret ... -->
       <section id="endre-filer" class="card">
         <h2>2. Endre og commit</h2>
         <p>En commit-melding er en kort tekst som forklarer hva du har endret. Gode meldinger gjør historikken forståelig.</p>
@@ -82,7 +125,6 @@
           <li>Skriv en commit‑melding nederst og trykk <strong>Commit changes</strong>.</li>
         </ol>
       </section>
-
       <section id="branches" class="card">
         <h2>3. Branches</h2>
         <ol>
@@ -92,7 +134,6 @@
           <li>Bytt tilbake til <code>main</code>.</li>
         </ol>
       </section>
-
       <section id="feil" class="card">
         <h2>4. Vanlige feil</h2>
         <ul>
@@ -104,7 +145,6 @@
           <li>Konflikter når du slår sammen branches → GitHub markerer forskjellene. Løs manuelt og commit på nytt.</li>
         </ul>
       </section>
-
       <section id="workflow" class="card">
         <h2>5. Workflow</h2>
         <ol>
@@ -114,7 +154,6 @@
           <li>Lag branches for nye ideer og merge når du er fornøyd.</li>
         </ol>
       </section>
-
       <section id="videre" class="card">
         <h2>6. Videre steg</h2>
         <ul>
@@ -126,7 +165,6 @@
           <li>Sjekk Insights-fanen for å se statistikk og aktivitet i prosjektet.</li>
         </ul>
       </section>
-
       <section id="cheatsheet" class="card">
         <h2>7. Cheatsheet (GitHub nett)</h2>
         <ul>
@@ -140,7 +178,6 @@
           <li><strong>Last ned repo:</strong> Grønn <em>Code</em>-knapp → Download ZIP.</li>
         </ul>
       </section>
-
       <section id="begreper" class="card">
         <h2>8. Begreper forklart</h2>
         <dl class="glossary">
@@ -172,7 +209,6 @@
           <dd>Forteller hvilke rettigheter andre har til å bruke, endre eller dele prosjektet ditt.</dd>
         </dl>
       </section>
-
       <section id="kodesprak" class="card">
         <h2>9. Ulike typer kodespråk</h2>
         <dl class="glossary">
@@ -190,6 +226,15 @@
       </section>
     </main>
   </div>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <a class="footer-logo-link" href="https://www.laererliv.no/" target="_blank" rel="noopener">
+        <img class="footer-logo-img" src="logo.png" alt="Lærerliv logo" />
+        <span class="footer-text">lærerliv 2025</span>
+      </a>
+    </div>
+  </footer>
 
   <script>
   document.querySelectorAll('nav.toc a[href^="#"]').forEach(a => {
