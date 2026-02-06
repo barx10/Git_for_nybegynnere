@@ -4,14 +4,25 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Git for nybegynnere</title>
-  <meta name="description" content="Kort og konkret innføring i Git – bruk av GitHub direkte i nettleseren." />
+  <meta name="description" content="Kort og konkret innføring i Git. Lær å bruke GitHub direkte i nettleseren." />
   <style>
     :root{
       --bg:#0b0c10; --panel:#12151b; --ink:#e8edf2; --muted:#a8b3c2; --acc:#59b0ff;
       --radius:14px; --shadow:0 6px 20px rgba(0,0,0,.25);
     }
     *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,#0b0c10 0%,#0f1117 100%);color:var(--ink);font:16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif}
+    body{
+      margin:0;
+      color:var(--ink);
+      font:16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      background:#0b0c10;
+      background-image:
+        radial-gradient(ellipse at 10% -20%, rgba(89,176,255,0.28) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 120%, rgba(42,157,143,0.28) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 40%, rgba(120,80,200,0.12) 0%, transparent 55%);
+      background-attachment:fixed;
+      min-height:100vh;
+    }
     a{color:var(--acc);text-decoration:none;cursor:pointer}
     a:hover{text-decoration:underline}
     header{position:sticky;top:0;background:rgba(11,12,16,.9);border-bottom:1px solid #1f2430;z-index:50}
@@ -20,8 +31,9 @@
     nav.toc{position:sticky;top:64px;display:flex;flex-wrap:wrap;gap:10px;padding:10px;background:#0f1320;border:1px solid #1f2430;border-radius:var(--radius);margin-bottom:20px;box-shadow:var(--shadow);}
     nav.toc a{color:var(--ink);padding:6px 10px;border-radius:8px;background:#151b27;font-size:14px;text-decoration:none}
     nav.toc a:hover{background:#1e2535}
-    .hero-block{padding:28px;margin:18px 0;background:var(--panel);border:1px solid #1f2430;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero-block{padding:28px;margin:18px 0;background:var(--panel);border:1px solid #1f2430;border-radius:var(--radius);box-shadow:var(--shadow);text-align:center}
     .hero-block h1{margin:0 0 6px 0;font-size:30px}
+    .hero-logo{width:80px;height:80px;margin-bottom:16px}
     .card{background:var(--panel);border:1px solid #1f2430;border-radius:var(--radius);padding:18px;margin-bottom:18px;box-shadow:var(--shadow);scroll-margin-top:100px}
     pre{background:#0f1320;border:1px solid #1f2430;border-radius:12px;padding:12px;overflow:auto;font-size:14px;color:#dce6f5;position:relative}
     code{font-family:ui-monospace, monospace}
@@ -71,19 +83,112 @@
       .footer-logo-img { height: 28px; }
       .footer-text { font-size: 14px; }
     }
+    /* Progress tracker */
+    .progress-bar{background:#1a1f2e;border-radius:20px;height:24px;margin:10px 0 20px;overflow:hidden;position:relative}
+    .progress-fill{background:linear-gradient(90deg,#2a9d8f,#59b0ff);height:100%;transition:width .4s ease;border-radius:20px}
+    .progress-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:12px;font-weight:600;color:#fff}
+    .stats-row{display:flex;gap:16px;flex-wrap:wrap}
+    .stat-box{flex:1;min-width:140px;background:#151b27;border:1px solid #2a3346;border-radius:10px;padding:12px;text-align:center}
+    .stat-box .stat-value{font-size:24px;font-weight:700;color:var(--acc)}
+    .stat-box .stat-label{font-size:12px;color:var(--muted);margin-top:2px}
+    .section-check{float:right;background:#21262d;color:#a8b3c2;border:1px solid #3a4a66;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px;transition:all .2s}
+    .section-check:hover{background:#2a3346;border-color:#59b0ff;color:#fff}
+    .section-check.done{background:#1a3d2e;border-color:#2a9d8f;color:#7fdfcf;cursor:default}
+    /* Quiz styles */
+    .quiz{background:#0f1520;border:1px solid #2a3346;border-radius:12px;padding:16px;margin-top:16px}
+    .quiz h4{margin:0 0 12px;color:var(--acc)}
+    .quiz-option{display:block;background:#1e2535;border:1px solid #3a4a66;border-radius:8px;padding:10px 14px;margin:8px 0;cursor:pointer;transition:all .2s;color:#e8edf2;font-size:15px}
+    .quiz-option:hover{background:#2a3346;border-color:#4a5a76}
+    .quiz-option.correct{background:#1a3d2e;border-color:#2a9d8f;color:#7fdfcf}
+    .quiz-option.wrong{background:#3d1a1a;border-color:#d94f4f;color:#f5a5a5}
+    .quiz-feedback{margin-top:12px;padding:10px;border-radius:8px;display:none}
+    .quiz-feedback.show{display:block}
+    .quiz-feedback.success{background:#1a3d2e;color:#7fdfcf}
+    .quiz-feedback.error{background:#3d1a1a;color:#f5a5a5}
+    .quiz-question{margin-top:16px;padding-top:16px;border-top:1px solid #2a3346}
+    .quiz-question:first-of-type{margin-top:0;padding-top:0;border-top:none}
+    .quiz-question p{margin:0 0 10px;font-weight:500}
+    .quiz-explanation{margin-top:8px;padding:10px 12px;background:#0d1218;border-left:3px solid var(--acc);border-radius:0 8px 8px 0;font-size:14px;color:var(--ink);display:none}
+    .quiz-explanation.show{display:block}
+    .quiz-explanation.success{border-left-color:#2a9d8f;background:#0f1a16}
+    .quiz-explanation.error{border-left-color:#d94f4f;background:#1a0f0f}
+    .scenario-tag{display:inline-block;background:#2a3346;color:#a8b3c2;font-size:11px;padding:2px 8px;border-radius:4px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
+    /* Simulator styles */
+    .simulator{background:#0d1117;border:1px solid #30363d;border-radius:12px;overflow:hidden;margin-top:20px}
+    .sim-header{background:#161b22;padding:12px 16px;border-bottom:1px solid #30363d;display:flex;align-items:center;gap:12px}
+    .sim-header .sim-icon{width:24px;height:24px;background:#58a6ff;border-radius:6px}
+    .sim-header .sim-title{font-weight:600;color:#c9d1d9}
+    .sim-content{padding:20px}
+    .sim-step{display:none}
+    .sim-step.active{display:block}
+    .sim-btn{background:#238636;color:#fff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;margin-top:12px}
+    .sim-btn:hover{background:#2ea043}
+    .sim-btn-secondary{background:#21262d;border:1px solid #30363d}
+    .sim-btn-secondary:hover{background:#30363d}
+    .sim-input{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:8px 12px;color:#c9d1d9;width:100%;max-width:300px;margin:8px 0}
+    .sim-input:focus{outline:none;border-color:#58a6ff}
+    .sim-file{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:10px;margin:8px 0}
+    .sim-file-icon{display:inline-block;width:16px;height:16px;background:#8b949e;border-radius:3px;margin-right:8px;vertical-align:middle}
+    .sim-progress{display:flex;gap:8px;margin-bottom:16px}
+    .sim-dot{width:12px;height:12px;border-radius:50%;background:#30363d}
+    .sim-dot.done{background:#2ea043}
+    .sim-dot.current{background:#58a6ff}
+    /* Modal styles */
+    .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
+    .modal-overlay.open{display:flex}
+    .modal{background:var(--panel);border:1px solid #2a3346;border-radius:var(--radius);max-width:420px;width:90%;padding:28px;position:relative;box-shadow:0 12px 40px rgba(0,0,0,.4);animation:modalIn .25s ease}
+    @keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+    .modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+    .modal-close:hover{color:#fff}
+    .modal-logo{display:block;height:48px;margin:0 auto 16px}
+    .modal h3{margin:0 0 4px;text-align:center;font-size:20px}
+    .modal .modal-title{text-align:center;color:var(--muted);font-size:14px;margin-bottom:16px}
+    .modal p{text-align:center;color:var(--ink);line-height:1.6;margin-bottom:20px}
+    .modal-links{display:flex;flex-direction:column;gap:10px}
+    .modal-link{display:flex;align-items:center;gap:10px;background:#151b27;border:1px solid #2a3346;border-radius:8px;padding:10px 14px;color:var(--ink);text-decoration:none;transition:all .2s}
+    .modal-link:hover{background:#1e2535;border-color:#3a4a66}
+    .modal-link svg{width:18px;height:18px;fill:var(--acc);flex-shrink:0}
+    .about-btn{background:none;border:1px solid #3a4a66;color:var(--muted);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:14px;margin-top:12px;transition:all .2s}
+    .about-btn:hover{background:#1e2535;color:#fff;border-color:#59b0ff}
   </style>
 </head>
 <body>
   <header>
-    <div class="wrap hero">
+    <div class="wrap hero" style="display:flex;justify-content:space-between;align-items:center">
       <div class="brand">Git for nybegynnere</div>
+      <button class="about-btn" onclick="openAboutModal()">Om</button>
     </div>
   </header>
 
   <div class="wrap">
     <div class="hero-block">
+      <svg class="hero-logo" viewBox="0 0 92 92" fill="#f05033">
+        <path d="M90.156 41.965L50.036 1.848a5.913 5.913 0 00-8.368 0l-8.332 8.332 10.566 10.566a7.03 7.03 0 017.178 1.69 7.043 7.043 0 011.673 7.277l10.183 10.184a7.026 7.026 0 017.278 1.672 7.04 7.04 0 010 9.957 7.045 7.045 0 01-9.961 0 7.038 7.038 0 01-1.532-7.66l-9.5-9.497v24.997a7.078 7.078 0 011.898 1.318 7.044 7.044 0 010 9.957 7.045 7.045 0 01-9.961 0 7.04 7.04 0 010-9.957 7.03 7.03 0 012.348-1.49V32.196a7.03 7.03 0 01-2.348-1.49 7.046 7.046 0 01-1.516-7.7L29.2 12.463 1.848 39.82a5.918 5.918 0 000 8.37l40.121 40.118a5.916 5.916 0 008.369 0l39.818-39.818a5.918 5.918 0 000-8.37z"/>
+      </svg>
       <h1>Kom i gang med GitHub</h1>
-      <p>Git er et versjonskontrollsystem og en måte å lagre og spore endringer i filer. GitHub er en skyløsning der du kan bruke Git rett i nettleseren, dele prosjekter og samarbeide med andre. Dette er en superkort oversikt over det mest enkle funksjonene i GitHub.</p>
+      <p>Git er et versjonskontrollsystem som lar deg lagre, spore og rulle tilbake endringer i filer. GitHub er en skybasert plattform der du kan bruke Git direkte i nettleseren uten å installere noe.</p>
+      <p style="margin-top:12px;color:var(--muted)">Denne interaktive guiden tar deg gjennom det grunnleggende: opprett repo, commit endringer, bruk branches og mer. Test kunnskapen din med quizer underveis, og prøv den innebygde simulatoren for å øve i praksis.</p>
+    </div>
+
+    <!-- Progress tracker -->
+    <div class="card" style="padding:14px 18px">
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-value" id="quizScore">0/0</div>
+          <div class="stat-label">Riktige svar</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="sectionsDone">0/9</div>
+          <div class="stat-label">Seksjoner lest</div>
+        </div>
+      </div>
+      <div style="margin-top:14px">
+        <strong>Total fremgang:</strong>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+          <span class="progress-text" id="progressText">0%</span>
+        </div>
+      </div>
     </div>
 
     <nav class="toc" aria-label="Innhold">
@@ -92,51 +197,142 @@
       <a href="#branches">3. Branches</a>
       <a href="#feil">4. Vanlige feil</a>
       <a href="#workflow">5. Workflow</a>
+      <a href="#simulator">🎮 Simulator</a>
       <a href="#videre">6. Videre steg</a>
       <a href="#cheatsheet">7. Cheatsheet</a>
       <a href="#begreper">8. Begreper</a>
-      <a href="#kodesprak">9. Ulike kodespråk</a>
+      <a href="#ressurser">9. Ressurser</a>
     </nav>
 
     <main>
       <!-- ... eksisterende innhold ... -->
-      <section id="github-nett" class="card">
+      <section id="github-nett" class="card" data-section="1">
+        <button class="section-check" onclick="toggleSection(1)">☐ Marker som lest</button>
         <h2>1. Lag repo</h2>
+        <p>Et <strong>repository</strong> (ofte kalt «repo») er rett og slett en mappe for prosjektet ditt. Her lagres alle filene dine, og Git holder styr på hver eneste endring du gjør. Tenk på det som en prosjektmappe med innebygd historikk. Du kan alltid gå tilbake og se hva du endret, når, og hvorfor.</p>
+        <p style="margin:12px 0;color:var(--muted)">Følg stegene under for å opprette ditt første repo:</p>
         <ol>
-          <li>Gå til <a href="https://github.com/" target="_blank">github.com</a> og logg inn.</li>
-          <li>Klikk <strong>New repository</strong>.</li>
-          <li>Gi repoet et navn, velg Public eller Private.</li>
-          <li>Huk av <strong>Add a README</strong>. Valgfritt: legg til <strong>.gitignore</strong> og lisens.</li>
-          <li>Klikk <strong>Create repository</strong>.</li>
+          <li>Gå til <a href="https://github.com/" target="_blank">github.com</a> og logg inn (eller opprett en gratis konto).</li>
+          <li>Klikk <strong>New repository</strong> (grønn knapp øverst til høyre).</li>
+          <li>Gi repoet et navn, velg Public (synlig for alle) eller Private (bare du ser det).</li>
+          <li>Huk av <strong>Add a README</strong>. Dette gir deg en startfil å jobbe med.</li>
+          <li>Klikk <strong>Create repository</strong>. Ferdig!</li>
         </ol>
+        <div class="quiz" data-quiz="1">
+          <h4>🧠 Test deg selv</h4>
+          
+          <div class="quiz-question" data-q="1-1">
+            <p>Hva bør du huke av når du lager et nytt repo for å få en startfil?</p>
+            <button class="quiz-option" data-correct="false" data-explain="gitignore brukes for å ignorere filer, ikke for å lage startfiler.">Add .gitignore</button>
+            <button class="quiz-option" data-correct="true" data-explain="README.md er en beskrivende startfil som vises på forsiden av repoet.">Add a README</button>
+            <button class="quiz-option" data-correct="false" data-explain="Lisens handler om rettigheter, ikke startfiler.">Choose a license</button>
+            <div class="quiz-explanation"></div>
+          </div>
+          
+          <div class="quiz-question" data-q="1-2">
+            <span class="scenario-tag">Scenario</span>
+            <p>Du vil at andre skal kunne se prosjektet ditt, men ikke endre det direkte. Hva velger du?</p>
+            <button class="quiz-option" data-correct="true" data-explain="Et Public repo kan alle se, men bare du kan endre det (med mindre du gir tilgang).">Public repository</button>
+            <button class="quiz-option" data-correct="false" data-explain="Private repo skjuler prosjektet helt for andre.">Private repository</button>
+            <button class="quiz-option" data-correct="false" data-explain="Template er for å lage maler andre kan kopiere, ikke for vanlige prosjekter.">Template repository</button>
+            <div class="quiz-explanation"></div>
+          </div>
+        </div>
       </section>
       <!-- ... resten av innholdet uendret ... -->
-      <section id="endre-filer" class="card">
+      <section id="endre-filer" class="card" data-section="2">
+        <button class="section-check" onclick="toggleSection(2)">☐ Marker som lest</button>
         <h2>2. Endre og commit</h2>
-        <p>En commit-melding er en kort tekst som forklarer hva du har endret. Gode meldinger gjør historikken forståelig.</p>
-        <ul>
-          <li><em>Dårlig:</em> "update"</li>
-          <li><em>Bra:</em> "legg til forsidebilde"</li>
-        </ul>
+        <p>Når du gjør endringer i prosjektet ditt, må du <strong>committe</strong> dem for at Git skal huske dem. En commit er som et øyeblikksbilde av prosjektet. Du fryser tilstanden akkurat slik den er nå. Hver commit får en unik ID, så du alltid kan gå tilbake.</p>
+        <p style="margin:12px 0;color:var(--muted)">En god <strong>commit-melding</strong> forklarer kort hva du endret. Dette gjør det mye enklere å forstå historikken senere!</p>
+        <div class="hint" style="margin-bottom:14px">
+          <strong>Tips:</strong> Skriv meldinger som forklarer <em>hva</em> du gjorde, ikke <em>hvordan</em>.<br>
+          ✘ Dårlig: «update» eller «changes»<br>
+          ✔ Bra: «la til kontaktskjema på forsiden»
+        </div>
+        <p style="margin-bottom:8px;color:var(--muted)">Slik gjør du en commit på GitHub:</p>
         <ol>
-          <li>Åpne repoet ditt.</li>
-          <li>Klikk <strong>Add file → Create new file</strong>.</li>
-          <li>Kall fila <code>index.html</code> og lim inn enkel HTML.</li>
-          <li>Skriv en commit‑melding nederst og trykk <strong>Commit changes</strong>.</li>
+          <li>Åpne repoet ditt på GitHub.</li>
+          <li>Klikk <strong>Add file → Create new file</strong> (eller klikk på en eksisterende fil og trykk blyantikonet).</li>
+          <li>Gjør endringene dine i editoren.</li>
+          <li>Scroll ned, skriv en beskrivende commit-melding, og klikk <strong>Commit changes</strong>.</li>
         </ol>
+        <div class="quiz" data-quiz="2">
+          <h4>🧠 Test deg selv</h4>
+          
+          <div class="quiz-question" data-q="2-1">
+            <p>Hvilken commit-melding er best?</p>
+            <button class="quiz-option" data-correct="false" data-explain="\"fix\" sier ingenting om hva som ble fikset.">\"fix\"</button>
+            <button class="quiz-option" data-correct="false" data-explain="\"changes\" er like vagt. Hva ble endret?">\"changes\"</button>
+            <button class="quiz-option" data-correct="true" data-explain="Denne forklarer konkret hva som ble gjort. Mye enklere å forstå historikken!">\"fikset skrivefeil i README\"</button>
+            <div class="quiz-explanation"></div>
+          </div>
+          
+          <div class="quiz-question" data-q="2-2">
+            <span class="scenario-tag">Scenario</span>
+            <p>Du har skrevet litt kode og vil lagre framgangen. Hva gjør du på GitHub?</p>
+            <button class="quiz-option" data-correct="false" data-explain="Å laste ned ZIP gir deg en kopi, men lagrer ikke endringene dine.">Klikk Code → Download ZIP</button>
+            <button class="quiz-option" data-correct="true" data-explain="Commit lagrer et øyeblikksbilde av filene dine med en beskrivende melding.">Skriv commit-melding og klikk Commit changes</button>
+            <button class="quiz-option" data-correct="false" data-explain="Fork lager en kopi av andres repo. Ikke relevant for å lagre eget arbeid.">Klikk Fork</button>
+            <div class="quiz-explanation"></div>
+          </div>
+          
+          <div class="quiz-question" data-q="2-3">
+            <p>Hvor skriver du commit-meldingen på GitHub?</p>
+            <button class="quiz-option" data-correct="false" data-explain="README er for å beskrive prosjektet, ikke for commit-meldinger.">I README-fila</button>
+            <button class="quiz-option" data-correct="true" data-explain="Riktig! Feltet nederst på siden når du redigerer eller lager en fil.">I tekstfeltet nederst på siden</button>
+            <button class="quiz-option" data-correct="false" data-explain="Tittelfeltet er for filnavn, ikke commit-melding.">I tittelfeltet øverst</button>
+            <div class="quiz-explanation"></div>
+          </div>
+        </div>
       </section>
-      <section id="branches" class="card">
+      <section id="branches" class="card" data-section="3">
+        <button class="section-check" onclick="toggleSection(3)">☐ Marker som lest</button>
         <h2>3. Branches</h2>
+        <p>En <strong>branch</strong> (gren) er en parallell versjon av prosjektet ditt. Tenk på det som en kopi der du kan eksperimentere fritt uten å påvirke originalen. Hovedbranchen heter vanligvis <code>main</code>, og det er den «stabile» versjonen.</p>
+        <p style="margin:12px 0;color:var(--muted)">Når du er fornøyd med endringene i en branch, kan du <strong>merge</strong> (slå sammen) den tilbake til main. Da blir de nye funksjonene en del av hovedprosjektet.</p>
+        <p style="margin-bottom:8px;color:var(--muted)">Slik lager du en branch på GitHub:</p>
         <ol>
-          <li>Klikk på branch‑menyen.</li>
-          <li>Skriv inn nytt branchnavn, f.eks. <code>test-branch</code>.</li>
-          <li>Opprett branchen, gjør endringer og commit som vanlig.</li>
-          <li>Bytt tilbake til <code>main</code>.</li>
+          <li>Klikk på branch-menyen (viser vanligvis «main» øverst til venstre).</li>
+          <li>Skriv inn et nytt navn, f.eks. <code>ny-funksjon</code> eller <code>test-design</code>.</li>
+          <li>Klikk <strong>Create branch</strong>. Nå jobber du på den nye branchen.</li>
+          <li>Gjør endringer og commit som vanlig.</li>
+          <li>Når du er ferdig, bytt tilbake til <code>main</code> og opprett en <strong>Pull Request</strong> for å merge.</li>
         </ol>
+        <div class="quiz" data-quiz="3">
+          <h4>🧠 Test deg selv</h4>
+          
+          <div class="quiz-question" data-q="3-1">
+            <p>Hvorfor bruker vi branches?</p>
+            <button class="quiz-option" data-correct="false" data-explain="Branches handler om å jobbe parallelt, ikke om sletting.">For å slette filer permanent</button>
+            <button class="quiz-option" data-correct="true" data-explain="Akkurat! En branch er en trygg sandkasse for eksperimentering.">For å teste nye ting uten å ødelegge main</button>
+            <button class="quiz-option" data-correct="false" data-explain="Synlighet styres av Public/Private-innstillingen, ikke branches.">For å gjøre repoet privat</button>
+            <div class="quiz-explanation"></div>
+          </div>
+          
+          <div class="quiz-question" data-q="3-2">
+            <span class="scenario-tag">Scenario</span>
+            <p>Du vil prøve en ny funksjon uten å risikere å ødelegge det som allerede fungerer. Hva gjør du?</p>
+            <button class="quiz-option" data-correct="false" data-explain="Da overskriver du kanskje kode som fungerer!">Endre rett på main-branchen</button>
+            <button class="quiz-option" data-correct="true" data-explain="Riktig! Lag en ny branch, test der, og merge tilbake når det fungerer.">Lag en ny branch og jobb der</button>
+            <button class="quiz-option" data-correct="false" data-explain="Et nytt repo er overkill. Branches er laget for akkurat dette.">Lag et helt nytt repository</button>
+            <div class="quiz-explanation"></div>
+          </div>
+          
+          <div class="quiz-question" data-q="3-3">
+            <p>Hva gjør du for å ta med endringer fra en branch tilbake til main?</p>
+            <button class="quiz-option" data-correct="false" data-explain="Sletting fjerner arbeidet ditt. Ikke det du vil!">Sletter branchen</button>
+            <button class="quiz-option" data-correct="true" data-explain="Merge kombinerer endringene fra branchen inn i main.">Merger branchen inn i main</button>
+            <button class="quiz-option" data-correct="false" data-explain="Kopiere manuelt fungerer, men merge gjør det automatisk og trygt.">Kopierer filene manuelt</button>
+            <div class="quiz-explanation"></div>
+          </div>
+        </div>
       </section>
-      <section id="feil" class="card">
+      <section id="feil" class="card" data-section="4">
+        <button class="section-check" onclick="toggleSection(4)">☐ Marker som lest</button>
         <h2>4. Vanlige feil</h2>
-        <ul>
+        <p>Alle gjør feil, det er en del av læringen! Det fine med Git er at nesten alt kan fikses. Her er de vanligste tabbene og hvordan du løser dem:</p>
+        <ul style="margin-top:14px">
           <li>Endret feil branch → sjekk øverst hvilken branch du er på.</li>
           <li>Utydelig commit‑melding → skriv <em>hva</em> du endret.</li>
           <li>Filer vises ikke → sjekk at de er committet på <code>main</code>.</li>
@@ -144,19 +340,118 @@
           <li>Skrev over en fil ved en feil → bruk commit‑historikk på GitHub for å hente tilbake en tidligere versjon.</li>
           <li>Konflikter når du slår sammen branches → GitHub markerer forskjellene. Løs manuelt og commit på nytt.</li>
         </ul>
+        <div class="quiz" data-quiz="4">
+          <h4>🧠 Test deg selv</h4>
+          
+          <div class="quiz-question" data-q="4-1">
+            <span class="scenario-tag">Scenario</span>
+            <p>Du har committet endringer, men oppdager at du var på feil branch. Hvordan unngår du dette i fremtiden?</p>
+            <button class="quiz-option" data-correct="true" data-explain="Sjekk alltid branch-navnet øverst på siden før du committer!">Sjekk øverst hvilken branch du er på før du committer</button>
+            <button class="quiz-option" data-correct="false" data-explain="Å slette repoet er drastisk og unødvendig for å fikse dette.">Slett hele repoet og start på nytt</button>
+            <button class="quiz-option" data-correct="false" data-explain="Samme problem kan skje igjen hvis du ikke sjekker branch først.">Bare ignorer det og fortsett</button>
+            <div class="quiz-explanation"></div>
+          </div>
+          
+          <div class="quiz-question" data-q="4-2">
+            <span class="scenario-tag">Scenario</span>
+            <p>Du skrev over en viktig fil ved en feil og har allerede committet. Hva gjør du?</p>
+            <button class="quiz-option" data-correct="false" data-explain="Å gi opp er unødvendig. Git har innebygd historikk!">Gir opp, filen er tapt</button>
+            <button class="quiz-option" data-correct="true" data-explain="Riktig! Klikk på Commits i repoet og finn en tidligere versjon av filen.">Bruk commit-historikken på GitHub for å hente tilbake en tidligere versjon</button>
+            <button class="quiz-option" data-correct="false" data-explain="Ny branch hjelper ikke å gjenopprette slettede filer.">Lag en ny branch</button>
+            <div class="quiz-explanation"></div>
+          </div>
+          
+          <div class="quiz-question" data-q="4-3">
+            <span class="scenario-tag">Scenario</span>
+            <p>Du prøver å merge to branches, men får en konflikt. Hva betyr det og hva gjør du?</p>
+            <button class="quiz-option" data-correct="false" data-explain="Konflikter betyr ikke at noe er ødelagt. Det er en normal del av samarbeid.">Noe er permanent ødelagt</button>
+            <button class="quiz-option" data-correct="true" data-explain="Riktig! GitHub markerer forskjellene, og du velger manuelt hvilken versjon som skal beholdes.">Samme fil er endret på begge branches. Løs manuelt og commit på nytt</button>
+            <button class="quiz-option" data-correct="false" data-explain="Å vente løser ikke konflikten. Du må aktivt velge hvilken kode som skal beholdes.">Bare vent, det fikser seg selv</button>
+            <div class="quiz-explanation"></div>
+          </div>
+        </div>
       </section>
-      <section id="workflow" class="card">
+      <section id="workflow" class="card" data-section="5">
+        <button class="section-check" onclick="toggleSection(5)">☐ Marker som lest</button>
         <h2>5. Workflow</h2>
-        <ol>
+        <p>Nå som du kjenner de grunnleggende konseptene, her er den typiske arbeidsflyten når du jobber med GitHub. Denne syklusen gjentar du for hver endring eller funksjon du lager:</p>
+        <ol style="margin-top:14px">
           <li>Lag repo på GitHub.</li>
           <li>Opprett eller last opp filer.</li>
           <li>Commit med forklaring.</li>
           <li>Lag branches for nye ideer og merge når du er fornøyd.</li>
         </ol>
       </section>
-      <section id="videre" class="card">
+
+      <!-- GitHub Simulator -->
+      <section id="simulator" class="card">
+        <h2>🎮 Interaktiv GitHub-simulator</h2>
+        <p>Prøv å gå gjennom en typisk GitHub-arbeidsflyt:</p>
+        <div class="simulator">
+          <div class="sim-header">
+            <div class="sim-icon"></div>
+            <span class="sim-title">GitHub Simulator</span>
+          </div>
+          <div class="sim-content">
+            <div class="sim-progress">
+              <div class="sim-dot current" data-step="1"></div>
+              <div class="sim-dot" data-step="2"></div>
+              <div class="sim-dot" data-step="3"></div>
+              <div class="sim-dot" data-step="4"></div>
+              <div class="sim-dot" data-step="5"></div>
+            </div>
+            
+            <div class="sim-step active" data-step="1">
+              <h4>Steg 1: Opprett nytt repository</h4>
+              <p>Gi repoet ditt et navn:</p>
+              <input type="text" class="sim-input" id="simRepoName" placeholder="mitt-prosjekt">
+              <br>
+              <button class="sim-btn" onclick="simNextStep(2)">Create repository →</button>
+            </div>
+            
+            <div class="sim-step" data-step="2">
+              <h4>Steg 2: Repoet er opprettet! 🎉</h4>
+              <p>Ditt repo <strong id="simRepoDisplay"></strong> er nå klart.</p>
+              <div class="sim-file">
+                <span class="sim-file-icon"></span> README.md
+              </div>
+              <button class="sim-btn" onclick="simNextStep(3)">Legg til ny fil →</button>
+            </div>
+            
+            <div class="sim-step" data-step="3">
+              <h4>Steg 3: Opprett en ny fil</h4>
+              <p>Skriv inn filnavn:</p>
+              <input type="text" class="sim-input" id="simFileName" placeholder="index.html">
+              <br>
+              <button class="sim-btn" onclick="simNextStep(4)">Opprett fil →</button>
+            </div>
+            
+            <div class="sim-step" data-step="4">
+              <h4>Steg 4: Commit endringen</h4>
+              <p>Skriv en beskrivende commit-melding:</p>
+              <input type="text" class="sim-input" id="simCommitMsg" placeholder="la til startside">
+              <br>
+              <button class="sim-btn" onclick="simNextStep(5)">Commit changes →</button>
+            </div>
+            
+            <div class="sim-step" data-step="5">
+              <h4>✅ Gratulerer!</h4>
+              <p>Du har nå simulert en komplett GitHub-arbeidsflyt:</p>
+              <ul>
+                <li>Opprettet repo: <strong id="simFinalRepo"></strong></li>
+                <li>Lagt til fil: <strong id="simFinalFile"></strong></li>
+                <li>Committet med melding: <em id="simFinalMsg"></em></li>
+              </ul>
+              <button class="sim-btn sim-btn-secondary" onclick="simReset()">↻ Start på nytt</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="videre" class="card" data-section="6">
+        <button class="section-check" onclick="toggleSection(6)">☐ Marker som lest</button>
         <h2>6. Videre steg</h2>
-        <ul>
+        <p>Nå har du det grunnleggende på plass! GitHub har mange flere funksjoner som gjør samarbeid og prosjektstyring enklere. Her er noen du kan utforske når du føler deg klar:</p>
+        <ul style="margin-top:14px">
           <li>Slå på GitHub Pages for å publisere en enkel nettside rett fra repoet ditt.</li>
           <li>Utforsk Issues og Projects for å holde orden på oppgaver.</li>
           <li>Se på Pull Requests som metode for samarbeid og code review.</li>
@@ -165,9 +460,11 @@
           <li>Sjekk Insights-fanen for å se statistikk og aktivitet i prosjektet.</li>
         </ul>
       </section>
-      <section id="cheatsheet" class="card">
+      <section id="cheatsheet" class="card" data-section="7">
+        <button class="section-check" onclick="toggleSection(7)">☐ Marker som lest</button>
         <h2>7. Cheatsheet (GitHub nett)</h2>
-        <ul>
+        <p>En kjapp oversikt over de viktigste handlingene på GitHub. Bokmerke denne siden så du har den tilgjengelig!</p>
+        <ul style="margin-top:14px">
           <li><strong>Lag ny fil:</strong> Add file → Create new file</li>
           <li><strong>Last opp filer:</strong> Add file → Upload files</li>
           <li><strong>Endre fil:</strong> Klikk fila → blyantikon → Commit changes</li>
@@ -178,8 +475,10 @@
           <li><strong>Last ned repo:</strong> Grønn <em>Code</em>-knapp → Download ZIP.</li>
         </ul>
       </section>
-      <section id="begreper" class="card">
+      <section id="begreper" class="card" data-section="8">
+        <button class="section-check" onclick="toggleSection(8)">☐ Marker som lest</button>
         <h2>8. Begreper forklart</h2>
+        <p>Git og GitHub har sitt eget språk. Her er en ordliste over de viktigste begrepene du vil møte:</p>
         <dl class="glossary">
           <dt>Index-fil (index.html)</dt>
           <dd>Standard startfil for et nettsted. Når du åpner repoet på GitHub Pages, vises denne automatisk.</dd>
@@ -209,34 +508,53 @@
           <dd>Forteller hvilke rettigheter andre har til å bruke, endre eller dele prosjektet ditt.</dd>
         </dl>
       </section>
-      <section id="kodesprak" class="card">
-        <h2>9. Ulike typer kodespråk</h2>
-        <dl class="glossary">
-          <dt>HTML</dt>
-          <dd>Språket for å strukturere innhold på nettsider.</dd>
-          <dt>CSS</dt>
-          <dd>Brukes sammen med HTML for å style innholdet.</dd>
-          <dt>JavaScript (JS)</dt>
-          <dd>Gir nettsider interaktivitet, f.eks. knapper og dynamikk.</dd>
-          <dt>Python</dt>
-          <dd>Et lettlest og mye brukt språk til alt fra skript til maskinlæring.</dd>
-          <dt>Markdown</dt>
-          <dd>Et enkelt språk for å formatere tekst. Brukes ofte i README‑filer.</dd>
-        </dl>
+      <section id="ressurser" class="card" data-section="9">
+        <button class="section-check" onclick="toggleSection(9)">☐ Marker som lest</button>
+        <h2>9. Ressurser og videre læring</h2>
+        <p>Vil du lære mer? Her er noen gode ressurser for å fortsette reisen:</p>
+        <ul style="margin-top:14px">
+          <li><a href="https://docs.github.com/en/get-started" target="_blank">GitHub Docs: Get Started</a> — offisiell dokumentasjon fra GitHub</li>
+          <li><a href="https://skills.github.com/" target="_blank">GitHub Skills</a> — interaktive kurs direkte på GitHub</li>
+          <li><a href="https://learngitbranching.js.org/?locale=nb_NO" target="_blank">Learn Git Branching</a> — visuell og interaktiv læring av branches</li>
+          <li><a href="https://www.youtube.com/results?search_query=github+for+beginners" target="_blank">YouTube: GitHub for beginners</a> — videoer for visuelle lærere</li>
+          <li><a href="https://education.github.com/git-cheat-sheet-education.pdf" target="_blank">Git Cheat Sheet (PDF)</a> — last ned og ha ved siden av</li>
+        </ul>
+        <div class="hint" style="margin-top:16px">
+          <strong>Tips:</strong> Den beste måten å lære Git på er å bruke det! Lag et lite testprosjekt og prøv deg fram. Feil er gratis, og du lærer masse av dem.
+        </div>
       </section>
     </main>
   </div>
 
   <footer class="footer">
     <div class="footer-content">
-      <a class="footer-logo-link" href="https://www.laererliv.no/" target="_blank" rel="noopener">
-        <img class="footer-logo-img" src="logo_laererliv.png" alt="Lærerliv logo" />
-        <span class="footer-text">lærerliv 2025</span>
-      </a>
+      <span>Lærerliv © 2026</span>
     </div>
   </footer>
 
+  <!-- Om-modal -->
+  <div class="modal-overlay" id="aboutModal" onclick="closeAboutModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeAboutModal()">&times;</button>
+      <img class="modal-logo" src="logo_laererliv.png" alt="Lærerliv logo">
+      <h3>Kenneth Bareksten</h3>
+      <p class="modal-title">Lærer og hobbyprogrammerer</p>
+      <p>Lager digitale verktøy for å gjøre hverdagen litt enklere og mer kreativ.</p>
+      <div class="modal-links">
+        <a class="modal-link" href="https://www.laererliv.no/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+          www.laererliv.no
+        </a>
+        <a class="modal-link" href="mailto:kenneth@laererliv.no">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          kenneth@laererliv.no
+        </a>
+      </div>
+    </div>
+  </div>
+
   <script>
+  // Smooth scroll for TOC
   document.querySelectorAll('nav.toc a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
       const id = a.getAttribute('href');
@@ -245,6 +563,172 @@
         document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
       }
     });
+  });
+
+  // Progress tracking
+  const STORAGE_KEY = 'git-progress';
+  const QUIZ_KEY = 'git-quiz-score';
+  let completedSections = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let quizResults = JSON.parse(localStorage.getItem(QUIZ_KEY) || '{}');
+
+  function updateProgress() {
+    const totalSections = 9;
+    const doneSections = completedSections.length;
+    
+    // Count total questions and correct answers
+    const totalQuestions = document.querySelectorAll('.quiz-question').length;
+    let correctAnswers = Object.values(quizResults).filter(r => r === true).length;
+    let answeredQuestions = Object.keys(quizResults).length;
+    
+    // Calculate total progress (sections + quiz answers)
+    const sectionWeight = 0.5;
+    const quizWeight = 0.5;
+    const sectionPct = (doneSections / totalSections) * sectionWeight;
+    const quizPct = totalQuestions > 0 ? (answeredQuestions / totalQuestions) * quizWeight : 0;
+    const totalPct = Math.round((sectionPct + quizPct) * 100);
+    
+    document.getElementById('progressFill').style.width = totalPct + '%';
+    document.getElementById('progressText').textContent = totalPct + '%';
+    document.getElementById('sectionsDone').textContent = doneSections + '/9';
+    document.getElementById('quizScore').textContent = correctAnswers + '/' + answeredQuestions;
+    
+    // Update button states
+    document.querySelectorAll('.section-check').forEach(btn => {
+      const section = btn.closest('[data-section]');
+      if (section) {
+        const num = parseInt(section.dataset.section);
+        if (completedSections.includes(num)) {
+          btn.classList.add('done');
+          btn.textContent = '✓ Lest';
+        } else {
+          btn.classList.remove('done');
+          btn.textContent = '☐ Marker som lest';
+        }
+      }
+    });
+  }
+
+  function toggleSection(num) {
+    if (completedSections.includes(num)) {
+      completedSections = completedSections.filter(n => n !== num);
+    } else {
+      completedSections.push(num);
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(completedSections));
+    updateProgress();
+  }
+
+  // Quiz logic - handle each question individually
+  document.querySelectorAll('.quiz-question').forEach(question => {
+    const qId = question.dataset.q;
+    const options = question.querySelectorAll('.quiz-option');
+    const explanationDiv = question.querySelector('.quiz-explanation');
+    
+    // Check if already answered (from localStorage)
+    if (quizResults[qId] !== undefined) {
+      options.forEach(opt => {
+        opt.style.pointerEvents = 'none';
+        if (opt.dataset.correct === 'true') {
+          opt.classList.add('correct');
+        }
+      });
+      // Show explanation for the correct answer
+      const correctOpt = question.querySelector('[data-correct="true"]');
+      if (correctOpt && explanationDiv) {
+        explanationDiv.textContent = correctOpt.dataset.explain;
+        explanationDiv.classList.add('show');
+      }
+    }
+    
+    options.forEach(opt => {
+      opt.addEventListener('click', () => {
+        if (quizResults[qId] !== undefined) return; // Already answered
+        
+        const isCorrect = opt.dataset.correct === 'true';
+        quizResults[qId] = isCorrect;
+        localStorage.setItem(QUIZ_KEY, JSON.stringify(quizResults));
+        
+        opt.classList.add(isCorrect ? 'correct' : 'wrong');
+        
+        // Show correct answer and disable all options
+        options.forEach(o => {
+          o.style.pointerEvents = 'none';
+          if (o.dataset.correct === 'true') o.classList.add('correct');
+        });
+        
+        // Show explanation
+        const correctOpt = question.querySelector('[data-correct="true"]');
+        if (correctOpt && explanationDiv) {
+          const prefix = isCorrect ? '✅ ' : '❌ ';
+          explanationDiv.textContent = prefix + correctOpt.dataset.explain;
+          explanationDiv.classList.add('show');
+          explanationDiv.classList.add(isCorrect ? 'success' : 'error');
+        }
+        
+        updateProgress();
+      });
+    });
+  });
+
+  // Simulator logic
+  let simData = { repo: '', file: '', msg: '' };
+
+  function simNextStep(step) {
+    // Save data
+    if (step === 2) {
+      simData.repo = document.getElementById('simRepoName').value || 'mitt-prosjekt';
+      document.getElementById('simRepoDisplay').textContent = simData.repo;
+    } else if (step === 4) {
+      simData.file = document.getElementById('simFileName').value || 'index.html';
+    } else if (step === 5) {
+      simData.msg = document.getElementById('simCommitMsg').value || 'initial commit';
+      document.getElementById('simFinalRepo').textContent = simData.repo;
+      document.getElementById('simFinalFile').textContent = simData.file;
+      document.getElementById('simFinalMsg').textContent = simData.msg;
+    }
+
+    // Update steps
+    document.querySelectorAll('.sim-step').forEach(s => s.classList.remove('active'));
+    document.querySelector(`.sim-step[data-step="${step}"]`).classList.add('active');
+
+    // Update dots
+    document.querySelectorAll('.sim-dot').forEach(dot => {
+      const dotStep = parseInt(dot.dataset.step);
+      dot.classList.remove('current', 'done');
+      if (dotStep < step) dot.classList.add('done');
+      if (dotStep === step) dot.classList.add('current');
+    });
+  }
+
+  function simReset() {
+    simData = { repo: '', file: '', msg: '' };
+    document.getElementById('simRepoName').value = '';
+    document.getElementById('simFileName').value = '';
+    document.getElementById('simCommitMsg').value = '';
+    
+    document.querySelectorAll('.sim-step').forEach(s => s.classList.remove('active'));
+    document.querySelector('.sim-step[data-step="1"]').classList.add('active');
+    
+    document.querySelectorAll('.sim-dot').forEach((dot, i) => {
+      dot.classList.remove('current', 'done');
+      if (i === 0) dot.classList.add('current');
+    });
+  }
+
+  // Initialize on load
+  updateProgress();
+
+  // About modal
+  function openAboutModal() {
+    document.getElementById('aboutModal').classList.add('open');
+  }
+  function closeAboutModal(e) {
+    if (!e || e.target === e.currentTarget) {
+      document.getElementById('aboutModal').classList.remove('open');
+    }
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeAboutModal();
   });
   </script>
 </body>
