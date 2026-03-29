@@ -150,6 +150,35 @@
     .modal-link svg{width:18px;height:18px;fill:var(--acc);flex-shrink:0}
     .about-btn{background:none;border:1px solid #3a4a66;color:var(--muted);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:14px;margin-top:12px;transition:all .2s}
     .about-btn:hover{background:#1e2535;color:#fff;border-color:#59b0ff}
+    /* Progresjonsbanner */
+    .level-banner{background:linear-gradient(135deg,#1a2a3a,#12202e);border:1px solid #2a9d8f;border-radius:var(--radius);padding:18px 24px;margin:18px 0 0;text-align:center;position:relative;overflow:hidden}
+    .level-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2a9d8f,#59b0ff)}
+    .level-badge{display:inline-block;background:#2a9d8f;color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+    .level-banner p{margin:6px 0 0;color:var(--muted);font-size:15px}
+    .level-banner a.book-link{color:#59b0ff;font-weight:600;text-decoration:underline}
+    .level-banner a.book-link:hover{color:#7fc4ff}
+    /* Simulator toggle */
+    .sim-mode-toggle{display:flex;gap:0;margin-bottom:16px;background:#161b22;border:1px solid #30363d;border-radius:8px;overflow:hidden;width:fit-content}
+    .sim-mode-btn{background:none;border:none;color:#8b949e;padding:8px 18px;cursor:pointer;font-size:14px;font-weight:500;transition:all .2s}
+    .sim-mode-btn.active{background:#238636;color:#fff}
+    .sim-mode-btn:hover:not(.active){background:#21262d;color:#c9d1d9}
+    /* Terminal simulator */
+    .sim-terminal{background:#0a0e14;border:1px solid #1a1f2e;border-radius:8px;padding:12px;font-family:ui-monospace,monospace;font-size:13px;min-height:200px;max-height:320px;overflow-y:auto}
+    .sim-terminal .term-line{color:#7ee787;margin:2px 0;white-space:pre-wrap;word-break:break-all}
+    .sim-terminal .term-line.output{color:#8b949e}
+    .sim-terminal .term-line.error{color:#f85149}
+    .sim-terminal .term-line.info{color:#58a6ff}
+    .sim-terminal .term-input-line{display:flex;align-items:center;margin-top:4px}
+    .sim-terminal .term-prompt{color:#2a9d8f;margin-right:6px;white-space:nowrap}
+    .sim-terminal .term-input{background:none;border:none;color:#c9d1d9;font:inherit;flex:1;outline:none;caret-color:#59b0ff}
+    .sim-terminal .term-hint{color:#484f58;font-style:italic;margin:4px 0}
+    /* Begreper tabs */
+    .glossary-tabs{display:flex;gap:0;margin-bottom:14px;background:#151b27;border:1px solid #2a3346;border-radius:8px;overflow:hidden;width:fit-content}
+    .glossary-tab{background:none;border:none;color:#8b949e;padding:8px 18px;cursor:pointer;font-size:14px;font-weight:500;transition:all .2s}
+    .glossary-tab.active{background:var(--acc);color:#fff}
+    .glossary-tab:hover:not(.active){background:#1e2535;color:#c9d1d9}
+    .glossary-panel{display:none}
+    .glossary-panel.active{display:block}
   </style>
 </head>
 <body>
@@ -170,6 +199,12 @@
       <p style="margin-top:12px;color:var(--muted)">Denne interaktive guiden tar deg gjennom det grunnleggende: opprett repo, commit endringer, bruk branches og mer. Test kunnskapen din med quizer underveis, og prøv den innebygde simulatoren for å øve i praksis.</p>
     </div>
 
+    <div class="level-banner">
+      <span class="level-badge">Nivå 1: Nettleseren</span>
+      <p>Du lærer GitHub i nettleseren — et perfekt sted å starte! Klar for neste steg?<br>
+      Gå videre til terminalen med boka: <a class="book-link" href="https://laererliv.no" target="_blank">GitHub: Fra første commit til profesjonell flyt</a></p>
+    </div>
+
     <!-- Progress tracker -->
     <div class="card" style="padding:14px 18px">
       <div class="stats-row">
@@ -178,7 +213,7 @@
           <div class="stat-label">Riktige svar</div>
         </div>
         <div class="stat-box">
-          <div class="stat-value" id="sectionsDone">0/9</div>
+          <div class="stat-value" id="sectionsDone">0/10</div>
           <div class="stat-label">Seksjoner lest</div>
         </div>
       </div>
@@ -202,6 +237,7 @@
       <a href="#cheatsheet">7. Cheatsheet</a>
       <a href="#begreper">8. Begreper</a>
       <a href="#ressurser">9. Ressurser</a>
+      <a href="#neste-steg">10. Neste steg</a>
     </nav>
 
     <main>
@@ -391,8 +427,12 @@
           <div class="sim-header">
             <div class="sim-icon"></div>
             <span class="sim-title">GitHub Simulator</span>
+            <div class="sim-mode-toggle" style="margin-left:auto">
+              <button class="sim-mode-btn active" onclick="switchSimMode('gui')" id="simModeGui">Nettleser</button>
+              <button class="sim-mode-btn" onclick="switchSimMode('terminal')" id="simModeTerminal">Terminal</button>
+            </div>
           </div>
-          <div class="sim-content">
+          <div class="sim-content" id="simGuiMode">
             <div class="sim-progress">
               <div class="sim-dot current" data-step="1"></div>
               <div class="sim-dot" data-step="2"></div>
@@ -400,7 +440,7 @@
               <div class="sim-dot" data-step="4"></div>
               <div class="sim-dot" data-step="5"></div>
             </div>
-            
+
             <div class="sim-step active" data-step="1">
               <h4>Steg 1: Opprett nytt repository</h4>
               <p>Gi repoet ditt et navn:</p>
@@ -408,7 +448,7 @@
               <br>
               <button class="sim-btn" onclick="simNextStep(2)">Create repository →</button>
             </div>
-            
+
             <div class="sim-step" data-step="2">
               <h4>Steg 2: Repoet er opprettet! 🎉</h4>
               <p>Ditt repo <strong id="simRepoDisplay"></strong> er nå klart.</p>
@@ -417,7 +457,7 @@
               </div>
               <button class="sim-btn" onclick="simNextStep(3)">Legg til ny fil →</button>
             </div>
-            
+
             <div class="sim-step" data-step="3">
               <h4>Steg 3: Opprett en ny fil</h4>
               <p>Skriv inn filnavn:</p>
@@ -425,7 +465,7 @@
               <br>
               <button class="sim-btn" onclick="simNextStep(4)">Opprett fil →</button>
             </div>
-            
+
             <div class="sim-step" data-step="4">
               <h4>Steg 4: Commit endringen</h4>
               <p>Skriv en beskrivende commit-melding:</p>
@@ -433,7 +473,7 @@
               <br>
               <button class="sim-btn" onclick="simNextStep(5)">Commit changes →</button>
             </div>
-            
+
             <div class="sim-step" data-step="5">
               <h4>✅ Gratulerer!</h4>
               <p>Du har nå simulert en komplett GitHub-arbeidsflyt:</p>
@@ -444,6 +484,19 @@
               </ul>
               <button class="sim-btn sim-btn-secondary" onclick="simReset()">↻ Start på nytt</button>
             </div>
+          </div>
+          <div class="sim-content" id="simTerminalMode" style="display:none">
+            <p style="color:#8b949e;margin-bottom:8px;font-size:13px">Skriv git-kommandoer for å gå gjennom arbeidsflyten. Følg instruksjonene i terminalen.</p>
+            <div class="sim-terminal" id="terminalOutput">
+              <div class="term-line info">Velkommen til Git Terminal-simulatoren!</div>
+              <div class="term-line info">Steg 1/5: Opprett et nytt repository.</div>
+              <div class="term-hint">Skriv: git init</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+              <span style="color:#2a9d8f;font-family:ui-monospace,monospace;font-size:13px">$</span>
+              <input type="text" class="sim-input" id="terminalInput" placeholder="skriv kommando her..." style="flex:1;max-width:100%;margin:0" autocomplete="off">
+            </div>
+            <button class="sim-btn sim-btn-secondary" onclick="termReset()" style="margin-top:8px">↻ Start på nytt</button>
           </div>
         </div>
       </section>
@@ -479,34 +532,71 @@
         <button class="section-check" onclick="toggleSection(8)">☐ Marker som lest</button>
         <h2>8. Begreper forklart</h2>
         <p>Git og GitHub har sitt eget språk. Her er en ordliste over de viktigste begrepene du vil møte:</p>
-        <dl class="glossary">
-          <dt>Index-fil (index.html)</dt>
-          <dd>Standard startfil for et nettsted. Når du åpner repoet på GitHub Pages, vises denne automatisk.</dd>
-          <dt>README.md</dt>
-          <dd>En enkel tekstfil i Markdown som beskriver prosjektet. Vises på forsiden av repoet.</dd>
-          <dt>.gitignore</dt>
-          <dd>Liste over filer som skal ignoreres av Git.</dd>
-          <dt>Commit</dt>
-          <dd>Et lagringspunkt i prosjektet med en beskrivende melding.</dd>
-          <dt>Branch</dt>
-          <dd>En egen «gren» av repoet der du kan teste nye ting uten å ødelegge <code>main</code>.</dd>
-          <dt>Repository (repo)</dt>
-          <dd>Selve prosjektmappa, med alle filer og hele historikken.</dd>
-          <dt>Main branch</dt>
-          <dd>Hovedlinja i prosjektet ditt. Ofte heter den <code>main</code> og regnes som den stabile versjonen.</dd>
-          <dt>Merge</dt>
-          <dd>Å slå sammen endringer fra én branch inn i en annen.</dd>
-          <dt>Pull Request (PR)</dt>
-          <dd>Et forslag om å slå sammen endringer, brukes mye i samarbeid.</dd>
-          <dt>Fork</dt>
-          <dd>En kopi av et repo under din egen konto, så du kan eksperimentere uten å endre originalen.</dd>
-          <dt>Clone</dt>
-          <dd>Å laste ned en kopi av repoet til din egen maskin (brukes hvis du vil jobbe lokalt).</dd>
-          <dt>Issues</dt>
-          <dd>Et GitHub-verktøy for å rapportere feil, oppgaver eller idéer knyttet til repoet.</dd>
-          <dt>License</dt>
-          <dd>Forteller hvilke rettigheter andre har til å bruke, endre eller dele prosjektet ditt.</dd>
-        </dl>
+        <div class="glossary-tabs">
+          <button class="glossary-tab active" onclick="switchGlossary('gui')">GitHub-begreper</button>
+          <button class="glossary-tab" onclick="switchGlossary('terminal')">Terminalkommandoer</button>
+        </div>
+        <div class="glossary-panel active" id="glossaryGui">
+          <dl class="glossary">
+            <dt>Index-fil (index.html)</dt>
+            <dd>Standard startfil for et nettsted. Når du åpner repoet på GitHub Pages, vises denne automatisk.</dd>
+            <dt>README.md</dt>
+            <dd>En enkel tekstfil i Markdown som beskriver prosjektet. Vises på forsiden av repoet.</dd>
+            <dt>.gitignore</dt>
+            <dd>Liste over filer som skal ignoreres av Git.</dd>
+            <dt>Commit</dt>
+            <dd>Et lagringspunkt i prosjektet med en beskrivende melding.</dd>
+            <dt>Branch</dt>
+            <dd>En egen «gren» av repoet der du kan teste nye ting uten å ødelegge <code>main</code>.</dd>
+            <dt>Repository (repo)</dt>
+            <dd>Selve prosjektmappa, med alle filer og hele historikken.</dd>
+            <dt>Main branch</dt>
+            <dd>Hovedlinja i prosjektet ditt. Ofte heter den <code>main</code> og regnes som den stabile versjonen.</dd>
+            <dt>Merge</dt>
+            <dd>Å slå sammen endringer fra én branch inn i en annen.</dd>
+            <dt>Pull Request (PR)</dt>
+            <dd>Et forslag om å slå sammen endringer, brukes mye i samarbeid.</dd>
+            <dt>Fork</dt>
+            <dd>En kopi av et repo under din egen konto, så du kan eksperimentere uten å endre originalen.</dd>
+            <dt>Clone</dt>
+            <dd>Å laste ned en kopi av repoet til din egen maskin (brukes hvis du vil jobbe lokalt).</dd>
+            <dt>Issues</dt>
+            <dd>Et GitHub-verktøy for å rapportere feil, oppgaver eller idéer knyttet til repoet.</dd>
+            <dt>License</dt>
+            <dd>Forteller hvilke rettigheter andre har til å bruke, endre eller dele prosjektet ditt.</dd>
+          </dl>
+        </div>
+        <div class="glossary-panel" id="glossaryTerminal">
+          <dl class="glossary">
+            <dt><code>git status</code></dt>
+            <dd>Viser status på arbeidsområdet ditt — hvilke filer som er endret, staged eller utracked.</dd>
+            <dt><code>git add</code></dt>
+            <dd>Legger filer til «staging area» slik at de er klare for neste commit. Bruk <code>git add .</code> for alle filer.</dd>
+            <dt><code>git commit</code></dt>
+            <dd>Lagrer et øyeblikksbilde av endringene dine med en melding. Eksempel: <code>git commit -m "melding"</code></dd>
+            <dt><code>git push</code></dt>
+            <dd>Sender dine lokale commits til GitHub slik at andre kan se dem.</dd>
+            <dt><code>git pull</code></dt>
+            <dd>Henter og slår sammen endringer fra GitHub til din lokale maskin.</dd>
+            <dt><code>git stash</code></dt>
+            <dd>Lagrer ucommittede endringer midlertidig så du kan bytte branch uten å miste arbeid.</dd>
+            <dt><code>git log</code></dt>
+            <dd>Viser historikken over alle commits i prosjektet med ID, forfatter og melding.</dd>
+            <dt><code>git diff</code></dt>
+            <dd>Viser forskjellene mellom filer — hva som er lagt til, endret eller fjernet.</dd>
+            <dt><code>git branch</code></dt>
+            <dd>Viser, oppretter eller sletter branches. Bruk <code>git branch navn</code> for å lage en ny.</dd>
+            <dt><code>git merge</code></dt>
+            <dd>Slår sammen endringer fra én branch inn i den du står på.</dd>
+            <dt><code>git revert</code></dt>
+            <dd>Angrer en spesifikk commit ved å lage en ny commit som reverserer endringene.</dd>
+            <dt><code>git reflog</code></dt>
+            <dd>Viser en logg over alle referanseendringer — nyttig for å gjenopprette «tapte» commits.</dd>
+          </dl>
+          <div class="hint">
+            <strong>Vil du lære mer?</strong> Disse kommandoene dekkes grundig i boka <a href="https://laererliv.no" target="_blank">GitHub: Fra første commit til profesjonell flyt</a>.
+          </div>
+        </div>
       </section>
       <section id="ressurser" class="card" data-section="9">
         <button class="section-check" onclick="toggleSection(9)">☐ Marker som lest</button>
@@ -522,6 +612,20 @@
         <div class="hint" style="margin-top:16px">
           <strong>Tips:</strong> Den beste måten å lære Git på er å bruke det! Lag et lite testprosjekt og prøv deg fram. Feil er gratis, og du lærer masse av dem.
         </div>
+      </section>
+      <section id="neste-steg" class="card" data-section="10">
+        <button class="section-check" onclick="toggleSection(10)">☐ Marker som lest</button>
+        <h2>10. Neste steg: terminalen</h2>
+        <p>Nettleseren er et utmerket sted å starte med Git og GitHub. Du har lært å opprette repos, committe endringer og jobbe med branches — alt uten å installere noe. Men for å få <strong>full kontroll</strong> over Git, trenger du terminalen.</p>
+        <p style="margin:12px 0">Med terminalen kan du jobbe raskere, automatisere oppgaver og håndtere avanserte situasjoner som nettleseren ikke støtter. Boka <strong>«GitHub: Fra første commit til profesjonell flyt»</strong> tar deg fra nettleseren til terminalen og dekker blant annet:</p>
+        <ul>
+          <li>SSH-nøkler og sikker tilkobling</li>
+          <li>Branching og merging fra terminal</li>
+          <li>GitHub Actions for automatisering</li>
+          <li>Sikkerhet og tilgangskontroll</li>
+          <li>Feilhåndtering med <code>git reflog</code> og <code>git revert</code></li>
+        </ul>
+        <p style="margin-top:14px"><a href="https://laererliv.no" target="_blank" style="background:var(--acc);color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;display:inline-block;text-decoration:none">Les boka →</a></p>
       </section>
     </main>
   </div>
@@ -572,7 +676,7 @@
   let quizResults = JSON.parse(localStorage.getItem(QUIZ_KEY) || '{}');
 
   function updateProgress() {
-    const totalSections = 9;
+    const totalSections = 10;
     const doneSections = completedSections.length;
     
     // Count total questions and correct answers
@@ -589,7 +693,7 @@
     
     document.getElementById('progressFill').style.width = totalPct + '%';
     document.getElementById('progressText').textContent = totalPct + '%';
-    document.getElementById('sectionsDone').textContent = doneSections + '/9';
+    document.getElementById('sectionsDone').textContent = doneSections + '/10';
     document.getElementById('quizScore').textContent = correctAnswers + '/' + answeredQuestions;
     
     // Update button states
@@ -714,6 +818,121 @@
       if (i === 0) dot.classList.add('current');
     });
   }
+
+  // Glossary tab switching
+  function switchGlossary(mode) {
+    document.querySelectorAll('.glossary-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.glossary-panel').forEach(p => p.classList.remove('active'));
+    if (mode === 'terminal') {
+      document.querySelectorAll('.glossary-tab')[1].classList.add('active');
+      document.getElementById('glossaryTerminal').classList.add('active');
+    } else {
+      document.querySelectorAll('.glossary-tab')[0].classList.add('active');
+      document.getElementById('glossaryGui').classList.add('active');
+    }
+  }
+
+  // Simulator mode switching
+  function switchSimMode(mode) {
+    document.getElementById('simModeGui').classList.toggle('active', mode === 'gui');
+    document.getElementById('simModeTerminal').classList.toggle('active', mode === 'terminal');
+    document.getElementById('simGuiMode').style.display = mode === 'gui' ? 'block' : 'none';
+    document.getElementById('simTerminalMode').style.display = mode === 'terminal' ? 'block' : 'none';
+    if (mode === 'terminal') termReset();
+  }
+
+  // Terminal simulator
+  const termSteps = [
+    { step:1, prompt:'Steg 1/5: Opprett et nytt repository.', hint:'Skriv: git init', expect:'git init',
+      output:['Initialized empty Git repository in /mitt-prosjekt/.git/','','Steg 2/5: Legg til en fil i staging area.'], hint2:'Skriv: git add .' },
+    { step:2, prompt:'Steg 2/5: Legg til en fil i staging area.', hint:'Skriv: git add .', expect:'git add',
+      output:['','Steg 3/5: Lag en commit med en beskrivende melding.'], hint2:'Skriv: git commit -m "din melding"' },
+    { step:3, prompt:'Steg 3/5: Lag en commit med en beskrivende melding.', hint:'Skriv: git commit -m "din melding"', expect:'git commit',
+      output:null, hint2:'Skriv: git status' },
+    { step:4, prompt:'Steg 4/5: Sjekk status på repoet.', hint:'Skriv: git status', expect:'git status',
+      output:['On branch main','nothing to commit, working tree clean','','Steg 5/5: Se commit-historikken.'], hint2:'Skriv: git log' },
+    { step:5, prompt:'Steg 5/5: Se commit-historikken.', hint:'Skriv: git log', expect:'git log',
+      output:null, hint2:'' }
+  ];
+  let termCurrentStep = 0;
+
+  function termAddLine(text, cls) {
+    const el = document.createElement('div');
+    el.className = 'term-line' + (cls ? ' ' + cls : '');
+    el.textContent = text;
+    document.getElementById('terminalOutput').appendChild(el);
+  }
+
+  function termAddHint(text) {
+    const el = document.createElement('div');
+    el.className = 'term-hint';
+    el.textContent = text;
+    document.getElementById('terminalOutput').appendChild(el);
+  }
+
+  function termScrollBottom() {
+    const t = document.getElementById('terminalOutput');
+    t.scrollTop = t.scrollHeight;
+  }
+
+  function termReset() {
+    termCurrentStep = 0;
+    const out = document.getElementById('terminalOutput');
+    out.innerHTML = '';
+    termAddLine('Velkommen til Git Terminal-simulatoren!', 'info');
+    termAddLine(termSteps[0].prompt, 'info');
+    termAddHint(termSteps[0].hint);
+    document.getElementById('terminalInput').value = '';
+    termScrollBottom();
+  }
+
+  document.getElementById('terminalInput').addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    const cmd = this.value.trim();
+    if (!cmd) return;
+    this.value = '';
+
+    const step = termSteps[termCurrentStep];
+    termAddLine('$ ' + cmd, '');
+
+    if (!cmd.startsWith(step.expect)) {
+      termAddLine('Feil kommando. ' + step.hint, 'error');
+      termScrollBottom();
+      return;
+    }
+
+    // Handle commit step specially to extract message
+    if (step.step === 3) {
+      const msgMatch = cmd.match(/-m\s+["'](.+?)["']/);
+      const msg = msgMatch ? msgMatch[1] : 'initial commit';
+      termAddLine('[main (root-commit) a1b2c3d] ' + msg, 'output');
+      termAddLine(' 1 file changed, 1 insertion(+)', 'output');
+      termAddLine('', 'output');
+      termAddLine('Steg 4/5: Sjekk status på repoet.', 'info');
+      termAddHint(step.hint2);
+    } else if (step.step === 5) {
+      // git log output
+      termAddLine('commit a1b2c3d (HEAD -> main)', 'output');
+      termAddLine('Author: bruker <bruker@eksempel.no>', 'output');
+      termAddLine('Date:   i dag', 'output');
+      termAddLine('', 'output');
+      termAddLine('    initial commit', 'output');
+      termAddLine('', '');
+      termAddLine('✅ Gratulerer! Du har fullført terminal-simulatoren.', 'info');
+      termAddLine('Du brukte: git init, git add, git commit, git status og git log.', 'info');
+    } else {
+      if (step.output) {
+        step.output.forEach(line => {
+          if (line.startsWith('Steg')) termAddLine(line, 'info');
+          else termAddLine(line, 'output');
+        });
+      }
+      if (step.hint2) termAddHint(step.hint2);
+    }
+
+    termCurrentStep++;
+    termScrollBottom();
+  });
 
   // Initialize on load
   updateProgress();
