@@ -179,6 +179,30 @@
     .glossary-tab:hover:not(.active){background:#1e2535;color:#c9d1d9}
     .glossary-panel{display:none}
     .glossary-panel.active{display:block}
+    /* Branch graph styles */
+    .graph-container{background:#0a0e14;border:1px solid #1f2430;border-radius:12px;padding:16px;margin:16px 0;overflow-x:auto}
+    .graph-container svg{display:block;margin:0 auto;max-width:100%}
+    .graph-container svg text{font-family:ui-monospace,monospace;pointer-events:none}
+    .commit-node{transition:opacity .4s ease,transform .4s ease}
+    .commit-node.new{animation:nodeAppear .5s ease forwards}
+    @keyframes nodeAppear{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+    .branch-line{stroke-width:3;fill:none;stroke-linecap:round}
+    .branch-label{font-size:12px;font-weight:700;fill:#fff}
+    .head-badge{font-size:10px;font-weight:700;fill:#0a0e14}
+    /* Challenge styles */
+    .challenge-controls{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+    .challenge-btn{background:#1e2535;border:1px solid #3a4a66;color:#c9d1d9;padding:10px 16px;border-radius:8px;cursor:pointer;font-family:ui-monospace,monospace;font-size:13px;transition:all .2s}
+    .challenge-btn:hover:not(:disabled){background:#2a3346;border-color:#59b0ff;color:#fff}
+    .challenge-btn:disabled{opacity:.35;cursor:not-allowed}
+    .challenge-btn.next{background:#238636;border-color:#238636;color:#fff;font-family:inherit;font-weight:600}
+    .challenge-btn.next:hover{background:#2ea043}
+    .challenge-status{padding:10px 14px;border-radius:8px;margin-top:10px;font-size:14px}
+    .challenge-status.info{background:#0f1520;border:1px solid #2a3346;color:#8b949e}
+    .challenge-status.success{background:#1a3d2e;border:1px solid #2a9d8f;color:#7fdfcf}
+    .challenge-steps{display:flex;gap:6px;margin-bottom:14px}
+    .challenge-step-dot{width:32px;height:32px;border-radius:50%;background:#1e2535;border:2px solid #3a4a66;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#8b949e;transition:all .3s}
+    .challenge-step-dot.active{border-color:#59b0ff;color:#59b0ff;background:#151d2e}
+    .challenge-step-dot.done{border-color:#2a9d8f;background:#1a3d2e;color:#7fdfcf}
   </style>
 </head>
 <body>
@@ -233,6 +257,7 @@
       <a href="#feil">4. Vanlige feil</a>
       <a href="#workflow">5. Workflow</a>
       <a href="#simulator">🎮 Simulator</a>
+      <a href="#branch-graf">🌳 Branch-graf</a>
       <a href="#videre">6. Videre steg</a>
       <a href="#cheatsheet">7. Cheatsheet</a>
       <a href="#begreper">8. Begreper</a>
@@ -500,6 +525,32 @@
           </div>
         </div>
       </section>
+      <!-- Branch-graf og oppgaver -->
+      <section id="branch-graf" class="card">
+        <h2>🌳 Interaktiv branch-graf</h2>
+        <p>Se hvordan branches og commits fungerer visuelt. Løs oppgavene ved å klikke på git-kommandoene i riktig rekkefølge.</p>
+
+        <div class="challenge-steps" id="challengeSteps">
+          <div class="challenge-step-dot active" data-ch="1">1</div>
+          <div class="challenge-step-dot" data-ch="2">2</div>
+          <div class="challenge-step-dot" data-ch="3">3</div>
+        </div>
+
+        <div id="challengeInfo" class="challenge-status info">
+          <strong>Oppgave 1:</strong> Lag en ny branch kalt «feature» fra main.
+        </div>
+
+        <div class="graph-container">
+          <svg id="gitGraphSvg" viewBox="0 0 620 240" width="620" height="240"></svg>
+        </div>
+
+        <div class="challenge-controls" id="challengeControls">
+          <!-- Buttons injected by JS -->
+        </div>
+
+        <div id="challengeFeedback" class="challenge-status info" style="display:none"></div>
+      </section>
+
       <section id="videre" class="card" data-section="6">
         <button class="section-check" onclick="toggleSection(6)">☐ Marker som lest</button>
         <h2>6. Videre steg</h2>
@@ -949,6 +1000,273 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeAboutModal();
   });
+
+  // ─── Branch Graph & Challenges ───
+  (function() {
+    const MAIN_COLOR = '#59b0ff';
+    const FEAT_COLOR = '#2a9d8f';
+    const MERGE_COLOR = '#b48ead';
+    const NODE_R = 18;
+    const svg = document.getElementById('gitGraphSvg');
+
+    // Commit positions (predefined layout)
+    const POS = {
+      c1: { x: 60,  y: 70 },
+      c2: { x: 180, y: 70 },
+      c3: { x: 300, y: 170 },
+      c4: { x: 420, y: 170 },
+      c5: { x: 500, y: 70 }
+    };
+
+    // Graph state
+    let state = {
+      commits: [
+        { id:'c1', label:'a1b', msg:'init', branch:'main', parents:[] },
+        { id:'c2', label:'f3d', msg:'README', branch:'main', parents:['c1'] }
+      ],
+      branches: { main:'c2' },
+      head: 'main',
+      step: 0,       // sub-step within current challenge
+      challenge: 1    // 1, 2, or 3
+    };
+
+    function svgEl(tag, attrs) {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      for (const [k,v] of Object.entries(attrs)) el.setAttribute(k,v);
+      return el;
+    }
+
+    function branchColor(b) {
+      return b === 'main' ? MAIN_COLOR : b === 'feature' ? FEAT_COLOR : MERGE_COLOR;
+    }
+
+    function drawLine(x1,y1,x2,y2,color) {
+      if (y1 === y2) {
+        svg.appendChild(svgEl('line',{x1,y1,x2,y2,stroke:color,'stroke-width':3,'stroke-linecap':'round'}));
+      } else {
+        const mx = (x1+x2)/2;
+        const d = `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+        svg.appendChild(svgEl('path',{d,stroke:color,fill:'none','stroke-width':3,'stroke-linecap':'round'}));
+      }
+    }
+
+    function drawCommit(id, isNew) {
+      const p = POS[id];
+      const c = state.commits.find(x => x.id === id);
+      if (!c || !p) return;
+      const color = branchColor(c.branch);
+
+      const g = svgEl('g',{class:'commit-node' + (isNew ? ' new' : '')});
+      g.appendChild(svgEl('circle',{cx:p.x,cy:p.y,r:NODE_R,fill:color,stroke:'#0a0e14','stroke-width':3}));
+      const txt = svgEl('text',{x:p.x,y:p.y+4,'text-anchor':'middle','font-size':'11',fill:'#fff','font-weight':'600','font-family':'ui-monospace,monospace'});
+      txt.textContent = c.label;
+      g.appendChild(txt);
+
+      // Commit message below/above
+      const msgY = c.branch === 'main' ? p.y - NODE_R - 10 : p.y + NODE_R + 16;
+      const msg = svgEl('text',{x:p.x,y:msgY,'text-anchor':'middle','font-size':'11',fill:'#8b949e','font-family':'ui-monospace,monospace'});
+      msg.textContent = c.msg;
+      g.appendChild(msg);
+
+      svg.appendChild(g);
+    }
+
+    function drawBranchLabel(name, commitId) {
+      const p = POS[commitId];
+      if (!p) return;
+      const color = branchColor(name);
+      const isMain = name === 'main';
+      const labelY = isMain ? p.y - NODE_R - 24 : p.y + NODE_R + 28;
+      const isHead = state.head === name;
+
+      const g = svgEl('g',{});
+
+      // Branch label background
+      const rect = svgEl('rect',{x:p.x-28,y:labelY-10,width:56,height:20,rx:4,fill:color,opacity:'0.9'});
+      g.appendChild(rect);
+      const txt = svgEl('text',{x:p.x,y:labelY+3,'text-anchor':'middle','font-size':'11','font-weight':'700',fill:'#0a0e14','font-family':'ui-monospace,monospace'});
+      txt.textContent = name;
+      g.appendChild(txt);
+
+      // HEAD badge
+      if (isHead) {
+        const hx = p.x + 32;
+        const hy = labelY;
+        const hr = svgEl('rect',{x:hx-18,y:hy-10,width:36,height:20,rx:4,fill:'#f0c040',opacity:'0.95'});
+        g.appendChild(hr);
+        const ht = svgEl('text',{x:hx,y:hy+3,'text-anchor':'middle','font-size':'10','font-weight':'700',fill:'#0a0e14','font-family':'ui-monospace,monospace'});
+        ht.textContent = 'HEAD';
+        g.appendChild(ht);
+      }
+
+      svg.appendChild(g);
+    }
+
+    function render(newCommits) {
+      const newSet = new Set(newCommits || []);
+      svg.innerHTML = '';
+
+      // Draw connections first (behind nodes)
+      for (const c of state.commits) {
+        const p = POS[c.id];
+        if (!p) continue;
+        for (const pid of c.parents) {
+          const pp = POS[pid];
+          if (!pp) continue;
+          drawLine(pp.x, pp.y, p.x, p.y, branchColor(c.branch));
+        }
+      }
+
+      // Draw commits
+      for (const c of state.commits) {
+        drawCommit(c.id, newSet.has(c.id));
+      }
+
+      // Draw branch labels
+      for (const [name, cid] of Object.entries(state.branches)) {
+        drawBranchLabel(name, cid);
+      }
+    }
+
+    // ─── Challenge logic ───
+    const challenges = {
+      1: {
+        title: 'Oppgave 1: Lag en ny branch kalt «feature» fra main.',
+        steps: [
+          { btn:'git branch feature', action() {
+              state.branches.feature = 'c2';
+              render();
+              feedback('Branch «feature» opprettet! Den peker nå på samme commit som main.', 'info');
+            }
+          },
+          { btn:'git checkout feature', action() {
+              state.head = 'feature';
+              render();
+              feedback('HEAD peker nå på feature. Nye commits havner her.', 'success');
+            }
+          }
+        ]
+      },
+      2: {
+        title: 'Oppgave 2: Lag to commits på feature-branchen.',
+        steps: [
+          { btn:'git commit -m "ny funksjon"', action() {
+              state.commits.push({ id:'c3', label:'e7a', msg:'ny funksjon', branch:'feature', parents:['c2'] });
+              state.branches.feature = 'c3';
+              render(['c3']);
+              feedback('Første commit på feature! Branchen har nå divergert fra main.', 'info');
+            }
+          },
+          { btn:'git commit -m "fiks bug"', action() {
+              state.commits.push({ id:'c4', label:'b2c', msg:'fiks bug', branch:'feature', parents:['c3'] });
+              state.branches.feature = 'c4';
+              render(['c4']);
+              feedback('Andre commit! Feature-branchen er nå 2 commits foran main.', 'success');
+            }
+          }
+        ]
+      },
+      3: {
+        title: 'Oppgave 3: Merge feature tilbake til main.',
+        steps: [
+          { btn:'git checkout main', action() {
+              state.head = 'main';
+              render();
+              feedback('Du er nå tilbake på main. Klar for merge!', 'info');
+            }
+          },
+          { btn:'git merge feature', action() {
+              state.commits.push({ id:'c5', label:'d9f', msg:'merge feature', branch:'main', parents:['c2','c4'] });
+              state.branches.main = 'c5';
+              render(['c5']);
+              feedback('Feature er merget inn i main! Alle endringene er nå en del av hovedbranchen.', 'success');
+            }
+          }
+        ]
+      }
+    };
+
+    function feedback(text, type) {
+      const el = document.getElementById('challengeFeedback');
+      el.textContent = text;
+      el.className = 'challenge-status ' + type;
+      el.style.display = 'block';
+    }
+
+    function updateButtons() {
+      const ctrls = document.getElementById('challengeControls');
+      ctrls.innerHTML = '';
+      const ch = challenges[state.challenge];
+      if (!ch) return;
+
+      if (state.step < ch.steps.length) {
+        const s = ch.steps[state.step];
+        const btn = document.createElement('button');
+        btn.className = 'challenge-btn';
+        btn.textContent = '$ ' + s.btn;
+        btn.addEventListener('click', () => {
+          s.action();
+          state.step++;
+          updateButtons();
+          updateStepDots();
+        });
+        ctrls.appendChild(btn);
+      } else if (state.challenge < 3) {
+        const btn = document.createElement('button');
+        btn.className = 'challenge-btn next';
+        btn.textContent = 'Neste oppgave →';
+        btn.addEventListener('click', () => {
+          state.challenge++;
+          state.step = 0;
+          document.getElementById('challengeInfo').innerHTML = '<strong>Oppgave ' + state.challenge + ':</strong> ' + challenges[state.challenge].title.split(': ')[1];
+          document.getElementById('challengeFeedback').style.display = 'none';
+          updateButtons();
+          updateStepDots();
+        });
+        ctrls.appendChild(btn);
+      } else {
+        const btn = document.createElement('button');
+        btn.className = 'challenge-btn next';
+        btn.textContent = '↻ Start på nytt';
+        btn.addEventListener('click', resetChallenge);
+        ctrls.appendChild(btn);
+        document.getElementById('challengeInfo').innerHTML = '<strong>Fullført!</strong> Du har lært å lage branches, committe og merge. Prøv gjerne igjen!';
+        document.getElementById('challengeInfo').className = 'challenge-status success';
+      }
+    }
+
+    function updateStepDots() {
+      document.querySelectorAll('.challenge-step-dot').forEach(dot => {
+        const n = parseInt(dot.dataset.ch);
+        dot.classList.remove('active','done');
+        if (n < state.challenge) dot.classList.add('done');
+        else if (n === state.challenge) dot.classList.add('active');
+      });
+    }
+
+    function resetChallenge() {
+      state = {
+        commits: [
+          { id:'c1', label:'a1b', msg:'init', branch:'main', parents:[] },
+          { id:'c2', label:'f3d', msg:'README', branch:'main', parents:['c1'] }
+        ],
+        branches: { main:'c2' },
+        head: 'main',
+        step: 0,
+        challenge: 1
+      };
+      document.getElementById('challengeInfo').innerHTML = '<strong>Oppgave 1:</strong> Lag en ny branch kalt «feature» fra main.';
+      document.getElementById('challengeInfo').className = 'challenge-status info';
+      document.getElementById('challengeFeedback').style.display = 'none';
+      render();
+      updateButtons();
+      updateStepDots();
+    }
+
+    // Initialize
+    render();
+    updateButtons();
+  })();
   </script>
 </body>
 </html>
