@@ -27,4 +27,4 @@ Denne nettsiden passer for alle som er nye til Git og GitHub og nysgjerrig på h
 - Pro Git Book, bokutgivelse: https://git-scm.com/book/en/v2
 - Git interactive, Learn git branching: https://learngitbranching.js.org/
   
-Lykke til!
+Lykke til!!
